@@ -1,16 +1,72 @@
 import {
   applyActionCode,
   confirmPasswordReset,
+  createUserWithEmailAndPassword,
   sendEmailVerification,
   sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
-import { auth } from "../../firebase/config";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { auth, db } from "../../firebase/config";
 
 function getAppUrl(path) {
   return `${window.location.origin}${path}`;
 }
 
 const AUTH_ACTIONS = {
+  REGISTER: async ({ firstName, lastName, email, password, role = "user" }) => {
+    if (!firstName || !lastName || !email) {
+      throw new Error("All registration fields are required.");
+    }
+
+    if (!password || password.length < 8) {
+      throw new Error("Password must be at least 8 characters.");
+    }
+
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    const { user } = credential;
+
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      firstName,
+      lastName,
+      email: user.email,
+      role,
+      createdAt: serverTimestamp(),
+    });
+
+    await sendEmailVerification(user, {
+      url: getAppUrl("/auth/verify-email"),
+    });
+
+    return { success: true, user };
+  },
+
+  LOGIN: async ({ email, password }) => {
+    if (!email || !password) {
+      throw new Error("Email and password are required.");
+    }
+
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    await credential.user.reload();
+
+    const currentUser = auth.currentUser;
+
+    if (!currentUser?.emailVerified) {
+      await signOut(auth);
+      throw new Error("Please verify your email before signing in.");
+    }
+
+    return { success: true, user: currentUser };
+  },
+
+  LOGOUT: async () => {
+    await signOut(auth);
+
+    return { success: true };
+  },
+
   VERIFY_EMAIL: async ({ token }) => {
     if (!token) {
       throw new Error("Verification token is missing.");
@@ -19,7 +75,7 @@ const AUTH_ACTIONS = {
     await applyActionCode(auth, token);
     await auth.currentUser?.reload();
 
-    return { success: true };
+    return { success: true, user: auth.currentUser };
   },
 
   RESET_PASSWORD: async ({ token, password }) => {

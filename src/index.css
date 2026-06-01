@@ -92,5 +92,5 @@ textarea {
   /* Ensure the modal overlay sits above the fixed header (which uses z-index: 9999)
      Use a higher z-index so modals and their backdrops are always on top. */
   z-index: 10000;
-  backdrop-filter: blur(2px); /* Apply blur effect */
+  backdrop-filter: blur(4px); /* Apply blur effect */
 }

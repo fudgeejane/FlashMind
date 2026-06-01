@@ -62,7 +62,7 @@ export function ThemeComponents() {
     shadow: darkMode ? "shadow-[0_2px_12px_rgba(0,0,0,0.35)]" : "shadow-[0_2px_12px_rgba(15,23,42,0.08)]",
 
     buttonBase:
-      "inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60",
+      "inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60",
     buttonPrimary: `hover:-translate-y-0.5 ${
       darkMode ? "bg-[#22D3EE] text-[#020617] hover:bg-cyan-300" : "bg-[#0F172A] text-white hover:bg-[#0891B2]"
     }`,
@@ -169,7 +169,7 @@ export function ThemeToggle() {
       aria-pressed={isDark}
       onClick={toggleMode}
       className={classNames(
-        "group relative inline-flex h-7.5 w-14 items-center rounded-full border p-1 shadow-sm transition hover:border-theme-primary",
+        "group relative inline-flex h-7.5 w-14 cursor-pointer items-center rounded-full border p-1 shadow-sm transition hover:border-theme-primary",
         classes.surface,
         classes.border
       )}

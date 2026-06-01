@@ -8,7 +8,7 @@ import {
   ThemedPage,
   ThemedText,
 } from "../../components/Theme";
-import actionHandler from "../actionHandler";
+import actionHandler from "../ActionHandler";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -55,18 +55,37 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <ThemedPage as="main" className="grid place-items-center px-5 py-12">
-      <ThemedCard as="section" className="w-full max-w-md p-8 shadow-xl">
-        <ThemedText as="h1" className="text-2xl font-bold">
-          Reset password
-        </ThemedText>
-        <ThemedText variant="secondary" className="mt-3 text-sm leading-6">
-          Enter a new password for your FlashMind account.
-        </ThemedText>
+    <ThemedPage
+      as="main"
+      className="relative grid min-h-screen place-items-center overflow-hidden px-5 py-12"
+    >
+      <div className="absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_60%)]" />
+      <div className="absolute -left-24 bottom-16 -z-10 h-80 w-80 rounded-full bg-sky-500/10 blur-3xl" />
+      <div className="absolute -right-24 top-20 -z-10 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
+
+      <ThemedCard as="section" className="w-full max-w-lg border border-white/10 p-8 shadow-2xl sm:p-10">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-500">
+          <span className="text-2xl font-black">#</span>
+        </div>
+
+        <div className="mt-6 text-center">
+          <ThemedText as="h1" className="text-3xl font-black tracking-tight sm:text-4xl">
+            Reset your password
+          </ThemedText>
+          <ThemedText variant="secondary" className="mt-4 text-sm leading-6 sm:text-base">
+            Choose a new password for your FlashMind account. After the reset completes, you will be sent back to sign in.
+          </ThemedText>
+        </div>
+
+        {!token && (
+          <div className="mt-6 rounded-2xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-200">
+            Password reset token is missing. Open the link from your email again.
+          </div>
+        )}
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <ThemedInput
-            label="New Password"
+            label="New password"
             name="password"
             type="password"
             value={formData.password}
@@ -76,7 +95,7 @@ export default function ResetPasswordPage() {
             required
           />
           <ThemedInput
-            label="Confirm Password"
+            label="Confirm new password"
             name="confirmPassword"
             type="password"
             value={formData.confirmPassword}
@@ -85,24 +104,19 @@ export default function ResetPasswordPage() {
             minLength={8}
             required
           />
+
           <ThemedButton
             type="submit"
             className="w-full rounded-xl py-3"
             disabled={isSubmitting || !token}
           >
-            {isSubmitting ? "Resetting..." : "Reset Password"}
+            {isSubmitting ? "Resetting..." : "Reset password"}
           </ThemedButton>
         </form>
 
-        {!token && (
-          <ThemedText variant="error" className="mt-4 text-center text-sm font-semibold">
-            Password reset token is missing.
-          </ThemedText>
-        )}
-
         <ThemedText variant="secondary" className="mt-6 text-center text-sm">
-          Remember your password?{" "}
-          <Link to="/signin" className="font-semibold text-cyan-600 dark:text-cyan-300">
+          Remembered your password?{" "}
+          <Link to="/signin" className="font-semibold text-cyan-600 transition hover:text-cyan-500 dark:text-cyan-300">
             Sign in
           </Link>
         </ThemedText>
