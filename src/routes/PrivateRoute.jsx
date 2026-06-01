@@ -10,7 +10,7 @@ export default function PrivateRoute() {
     return <LoadingPage />;
   }
 
-  if (!user) {
+  if (!user || !user.emailVerified) {
     return <Navigate to="/signin" replace state={{ from: location }} />;
   }
 

@@ -98,7 +98,7 @@ export default function Landing() {
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <a href="#home" className="flex items-center gap-3">
             <img src={Logo} alt="FlashMind Logo" className="h-10 w-10 rounded-xl" />
-            <span className="text-xl font-black">FlashMind</span>
+            <span className="text-lg font-bold">FlashMind</span>
           </a>
 
           <div className="hidden items-center gap-8 lg:flex">
@@ -183,9 +183,7 @@ export default function Landing() {
           <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/30 blur-3xl dark:bg-cyan-500/10 sm:h-96 sm:w-96" />
 
           <div className="relative mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
-            <p className="inline-flex max-w-full rounded-full border border-cyan-200 bg-cyan-50 px-4 py-2 text-xs font-bold text-cyan-700 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-200 sm:text-sm">
-              AI study decks from notes, PDFs, and tough topics
-            </p>
+          
 
             <h1 className="mt-6 text-4xl font-black leading-tight text-slate-950 sm:mt-7 sm:text-6xl lg:text-7xl dark:text-white">
               Study Smarter with AI-Powered Learning
@@ -218,33 +216,38 @@ export default function Landing() {
           </div>
         </section>
 
-        <section
-          id="about"
-          className="flex min-h-[100svh] items-center border-y border-slate-200 bg-white px-5 py-28 dark:border-white/10 dark:bg-slate-900/60 sm:py-32 lg:px-8"
-        >
-          <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-12">
-            <div>
-              <p className="text-sm font-black uppercase text-cyan-600 dark:text-cyan-300">
-                About FlashMind
-              </p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-                A calmer way to prepare for exams.
-              </h2>
-            </div>
-            <div className="grid gap-5 text-base leading-8 text-slate-600 dark:text-slate-300 md:grid-cols-2">
-              <p>
-                Upload PDFs, paste study notes, or start from a topic. FlashMind uses
-                Gemini AI to draft high-quality study materials that keep review
-                sessions active instead of passive.
-              </p>
-              <p>
-                Students can move between flashcards, quizzes, true or false checks,
-                and chatbot help while Firebase Authentication and Firestore keep the
-                workspace secure and persistent.
-              </p>
-            </div>
+       <section
+        id="about"
+        className="flex min-h-[100svh] items-center border-y border-slate-200 bg-white px-5 py-28 dark:border-white/10 dark:bg-slate-900/60 sm:py-32 lg:px-8"
+      >
+        <div className="flex flex-col mx-auto w-full max-w-3xl gap-8">
+
+          <div>
+            <p className="text-sm font-black uppercase text-cyan-600 dark:text-cyan-300">
+              About FlashMind
+            </p>
+
+            <h2 className="mt-4 text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+              A simpler way to prepare for exams.
+            </h2>
           </div>
-        </section>
+
+          <div className="flex flex-col gap-3 text-base leading-8 text-slate-600 dark:text-slate-300">
+            <p>
+              Upload PDFs, paste study notes, or start from a topic. FlashMind uses
+              Gemini AI to draft high-quality study materials that keep review
+              sessions active instead of passive.
+            </p>
+
+            <p>
+              Students can move between flashcards, quizzes, true or false checks,
+              and chatbot help while Firebase Authentication and Firestore keep the
+              workspace secure and persistent.
+            </p>
+          </div>
+
+        </div>
+      </section>
 
         <section
           id="features"

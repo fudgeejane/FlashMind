@@ -9,7 +9,7 @@ export default function PublicRoute({ redirectAuthenticated = false }) {
     return <LoadingPage />;
   }
 
-  if (redirectAuthenticated && user) {
+  if (redirectAuthenticated && user?.emailVerified) {
     return <Navigate to="/dashboard" replace />;
   }
 

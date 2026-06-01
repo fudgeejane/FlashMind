@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Landing from "../pages/Landing/Landing";
-import SignIn from "../pages/Auth/SignIn";
-import SignUp from "../pages/Auth/SignUp";
+import Login from "../auth/Login";
+import Register from "../auth/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Decks from "../pages/Decks/Decks";
 import Study from "../pages/Study/Study";
@@ -17,8 +17,8 @@ export default function AppRoutes() {
       </Route>
 
       <Route element={<PublicRoute redirectAuthenticated />}>
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signin" element={<Login />} />
+        <Route path="/signup" element={<Register />} />
       </Route>
 
       <Route element={<PrivateRoute />}>

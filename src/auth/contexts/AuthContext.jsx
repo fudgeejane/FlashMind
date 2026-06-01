@@ -6,7 +6,7 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
-import { auth, db } from "../../../firebase";
+import { auth, db } from "../../../firebase/config";
 import { AuthContext } from "./AuthContextValue";
 
 export const AuthProvider = ({ children }) => {
@@ -18,22 +18,22 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(
       auth,
       async (currentUser) => {
-        if (currentUser) {
-          setUser(currentUser);
+        try {
+          if (currentUser) {
+            setUser(currentUser);
 
-          const userDoc = await getDoc(
-            doc(db, "users", currentUser.uid)
-          );
+            const userDoc = await getDoc(
+              doc(db, "users", currentUser.uid)
+            );
 
-          if (userDoc.exists()) {
-            setUserInfo(userDoc.data());
+            setUserInfo(userDoc.exists() ? userDoc.data() : null);
+          } else {
+            setUser(null);
+            setUserInfo(null);
           }
-        } else {
-          setUser(null);
-          setUserInfo(null);
+        } finally {
+          setLoading(false);
         }
-
-        setLoading(false);
       }
     );
 
