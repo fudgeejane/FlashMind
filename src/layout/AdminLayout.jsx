@@ -42,7 +42,7 @@ export default function AdminLayout() {
 
   async function handleLogout() {
     await logout();
-    navigate("/signin", { replace: true });
+    navigate("/loading?next=/", { replace: true });
   }
 
   const sidebarWidth = collapsed ? "lg:w-20" : "lg:w-72";

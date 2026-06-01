@@ -71,6 +71,7 @@ export default function Register() {
             <ThemedInput
               label="First Name"
               name="firstName"
+              placeholder="Enter your first name"
               value={formData.firstName}
               onChange={updateField}
               autoComplete="given-name"
@@ -79,6 +80,7 @@ export default function Register() {
             <ThemedInput
               label="Last Name"
               name="lastName"
+              placeholder="Enter your last name"
               value={formData.lastName}
               onChange={updateField}
               autoComplete="family-name"
@@ -89,6 +91,7 @@ export default function Register() {
             label="Email"
             name="email"
             type="email"
+            placeholder="you@example.com"
             value={formData.email}
             onChange={updateField}
             autoComplete="email"
@@ -98,6 +101,7 @@ export default function Register() {
             label="Password"
             name="password"
             type="password"
+            placeholder="Create a password"
             value={formData.password}
             onChange={updateField}
             autoComplete="new-password"
@@ -108,6 +112,7 @@ export default function Register() {
             label="Confirm Password"
             name="confirmPassword"
             type="password"
+            placeholder="Re-enter your password"
             value={formData.confirmPassword}
             onChange={updateField}
             autoComplete="new-password"

@@ -15,11 +15,14 @@ import UserManagement from "../pages/Admin/UserManagement";
 import Inquiries from "../pages/Admin/Inquiries";
 import Logs from "../pages/Admin/Logs";
 import PrivateRoute from "./PrivateRoute";
+import LoadingRedirectPage from "./LoadingRedirectPage";
 import PublicRoute from "./PublicRoute";
 
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/loading" element={<LoadingRedirectPage />} />
+
       <Route element={<PublicRoute />}>
         <Route path="/" element={<Landing />} />
       </Route>

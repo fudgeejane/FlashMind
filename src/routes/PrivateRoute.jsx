@@ -11,7 +11,7 @@ export default function PrivateRoute({ allowedRoles }) {
   }
 
   if (!user || !user.emailVerified) {
-    return <Navigate to="/signin" replace state={{ from: location }} />;
+    return <Navigate to="/loading?next=/" replace state={{ from: location }} />;
   }
 
   const role = userInfo?.role || "user";

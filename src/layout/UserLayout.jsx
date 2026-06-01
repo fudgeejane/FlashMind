@@ -35,7 +35,7 @@ export default function UserLayout() {
 
   async function handleLogout() {
     await logout();
-    navigate("/signin", { replace: true });
+    navigate("/loading?next=/", { replace: true });
   }
 
   return (

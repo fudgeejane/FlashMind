@@ -32,7 +32,7 @@ export default function Login() {
 
     try {
       await login(formData.email, formData.password);
-      navigate("/dashboard", { replace: true });
+      navigate("/loading?purpose=signin", { replace: true });
     } finally {
       setIsSubmitting(false);
     }
@@ -62,6 +62,7 @@ export default function Login() {
             onChange={updateField}
             autoComplete="email"
             required
+            placeholder="you@example.com"
           />
           <ThemedInput
             label="Password"
@@ -69,7 +70,8 @@ export default function Login() {
             type="password"
             value={formData.password}
             onChange={updateField}
-            autoComplete="current-password"
+            autoComplete="off"
+            placeholder="Enter your password"
             required
           />
           <button

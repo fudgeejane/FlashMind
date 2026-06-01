@@ -8,12 +8,15 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ThemeToggle,
   ThemedButton,
   ThemedInput,
   ThemedPage,
 } from "../../components/Theme";
+import { useAuth } from "../../auth/contexts/useAuthContext";
 import Logo from "../../assets/FlashMind.png";
 
 const navItems = [
@@ -91,6 +94,21 @@ function FeatureCard({ feature }) {
 
 export default function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, userInfo } = useAuth();
+
+  useEffect(() => {
+    if (!user?.emailVerified) {
+      return;
+    }
+
+    const redirectTimer = window.setTimeout(() => {
+      const role = userInfo?.role || "user";
+      navigate(role === "admin" ? "/admin/dashboard" : "/dashboard", { replace: true });
+    }, 900);
+
+    return () => window.clearTimeout(redirectTimer);
+  }, [navigate, user?.emailVerified, userInfo?.role]);
 
   return (
     <ThemedPage>
