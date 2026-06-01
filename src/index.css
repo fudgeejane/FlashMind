@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-theme-primary: var(--theme-primary);
+  --color-theme-secondary: var(--theme-secondary);
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-success: var(--theme-success);
+  --color-theme-warning: var(--theme-warning);
+  --color-theme-error: var(--theme-error);
+  --color-theme-bg: var(--theme-background);
+  --color-theme-bg-elevated: var(--theme-background-elevated);
+  --color-theme-surface: var(--theme-surface);
+  --color-theme-surface-muted: var(--theme-surface-muted);
+  --color-theme-text-primary: var(--theme-text-primary);
+  --color-theme-text-secondary: var(--theme-text-secondary);
+  --color-theme-text-muted: var(--theme-text-muted);
+  --color-theme-border: var(--theme-border);
+  --color-theme-border-strong: var(--theme-border-strong);
+}
+
+:root {
+  color-scheme: light;
+  --theme-primary: #0891b2;
+  --theme-secondary: #0f172a;
+  --theme-accent: #22c55e;
+  --theme-success: #16a34a;
+  --theme-warning: #d97706;
+  --theme-error: #dc2626;
+  --theme-background: #f8fafc;
+  --theme-background-elevated: #ffffff;
+  --theme-surface: #ffffff;
+  --theme-surface-muted: #f1f5f9;
+  --theme-text-primary: #020617;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #64748b;
+  --theme-border: #e2e8f0;
+  --theme-border-strong: #cbd5e1;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1); /* Semi-transparent backdrop */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Ensure the modal overlay sits above the fixed header (which uses z-index: 9999)
+     Use a higher z-index so modals and their backdrops are always on top. */
+  z-index: 10000;
+  backdrop-filter: blur(2px); /* Apply blur effect */
+}

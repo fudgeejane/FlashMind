@@ -1,3 +1,16 @@
-# FlashMind
+# React + Vite
 
-FlashMind is an AI-powered study platform that helps students learn through flashcards, multiple-choice quizzes, and true-or-false assessments. Users can create decks manually, upload PDFs, or generate study materials using AI. The platform also features an AI chatbot that acts as a study assistant, providing explanations, answering questions, and helping students understand concepts more effectively. Built with Firebase for authentication and data storage, Gemini AI for content generation, and optional Cloudinary integration for PDF management.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
