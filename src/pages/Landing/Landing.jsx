@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Bot,
   CheckCircle2,
@@ -8,8 +8,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ThemeToggle,
   ThemedButton,
@@ -17,7 +18,10 @@ import {
   ThemedPage,
 } from "../../components/Theme";
 import { useAuth } from "../../auth/contexts/useAuthContext";
+import HeroSection from "./components/HeroSection";
 import Logo from "../../assets/FlashMind.png";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -96,6 +100,8 @@ export default function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const { user, userInfo } = useAuth();
+  const headerRef = useRef(null);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     if (!user?.emailVerified) {
@@ -110,9 +116,129 @@ export default function Landing() {
     return () => window.clearTimeout(redirectTimer);
   }, [navigate, user?.emailVerified, userInfo?.role]);
 
+  useLayoutEffect(() => {
+    const mainEl = mainRef.current;
+
+    if (!mainEl) {
+      return undefined;
+    }
+
+    const ctx = gsap.context(() => {
+      if (headerRef.current) {
+        gsap.from(headerRef.current, {
+          y: -46,
+          opacity: 0,
+          duration: 1,
+          ease: "expo.out",
+        });
+      }
+
+      gsap.utils.toArray("[data-reveal-block]").forEach((element) => {
+        gsap.from(element, {
+          y: 36,
+          opacity: 0,
+          duration: 0.9,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 82%",
+          },
+        });
+      });
+
+      const aboutTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#about",
+          start: "top 72%",
+          end: "bottom 55%",
+          toggleActions: "play none none reverse",
+        },
+        defaults: { ease: "power3.out" },
+      });
+
+      aboutTimeline
+        .from("#about [data-about-badge]", { y: 18, opacity: 0, duration: 0.65 })
+        .from("#about [data-about-title]", { y: 28, opacity: 0, duration: 0.8 }, "<0.08")
+        .from("#about [data-about-copy] > p", {
+          y: 22,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.14,
+        }, "<0.12")
+        .from("#about [data-about-card]", {
+          y: 26,
+          opacity: 0,
+          scale: 0.96,
+          duration: 0.8,
+          stagger: 0.12,
+        }, "<0.08");
+
+      gsap.to("#about [data-about-orb]", {
+        y: -18,
+        x: 12,
+        rotation: 16,
+        duration: 5.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
+      gsap.from("#features [data-feature-title]", {
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#features",
+          start: "top 76%",
+        },
+      });
+
+      gsap.from("#features [data-feature-card]", {
+        y: 34,
+        opacity: 0,
+        scale: 0.96,
+        duration: 0.75,
+        stagger: 0.11,
+        ease: "expo.out",
+        scrollTrigger: {
+          trigger: "#features",
+          start: "top 72%",
+        },
+      });
+
+      gsap.to("#features [data-feature-card]", {
+        y: "random(-6, 6)",
+        rotation: "random(-1.5, 1.5)",
+        duration: 4.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        stagger: 0.16,
+      });
+
+      gsap.from("[data-feature-card]", {
+        y: 28,
+        opacity: 0,
+        duration: 0.7,
+        stagger: 0.11,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#features",
+          start: "top 72%",
+        },
+      });
+    }, mainEl);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <ThemedPage>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/80">
+      <header
+        ref={headerRef}
+        className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/80"
+      >
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <a href="#home" className="flex items-center gap-3">
             <img src={Logo} alt="FlashMind Logo" className="h-10 w-10 rounded-xl" />
@@ -193,77 +319,73 @@ export default function Landing() {
         )}
       </header>
 
-      <main>
-        <section
-          id="home"
-          className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-28 sm:py-32 lg:px-8"
-        >
-          <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/30 blur-3xl dark:bg-cyan-500/10 sm:h-96 sm:w-96" />
+      <main ref={mainRef}>
+        <HeroSection />
 
-          <div className="relative mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
-          
-
-            <h1 className="mt-6 text-4xl font-black leading-tight text-slate-950 sm:mt-7 sm:text-6xl lg:text-7xl dark:text-white">
-              Study Smarter with AI-Powered Learning
-            </h1>
-
-            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:mt-6 sm:text-lg sm:leading-8">
-              FlashMind helps students transform course material into flashcards,
-              multiple-choice quizzes, true or false assessments, and guided AI
-              explanations in one focused workspace.
-            </p>
-
-            <div className="mt-8 flex w-full flex-col gap-3 sm:mt-9 sm:w-auto sm:flex-row">
-              <ThemedButton
-                as={Link}
-                to="/signup"
-                className="px-7 py-4"
-              >
-                Get Started
-              </ThemedButton>
-
-              <ThemedButton
-                as="a"
-                variant="secondary"
-                href="#about"
-                className="px-7 py-4"
-              >
-                Learn More
-              </ThemedButton>
-            </div>
-          </div>
-        </section>
-
-       <section
+      <section
         id="about"
         className="flex min-h-[100svh] items-center border-y border-slate-200 bg-white px-5 py-28 dark:border-white/10 dark:bg-slate-900/60 sm:py-32 lg:px-8"
       >
-        <div className="flex flex-col mx-auto w-full max-w-3xl gap-8">
-
-          <div>
-            <p className="text-sm font-black uppercase text-cyan-600 dark:text-cyan-300">
+        <div className="relative mx-auto w-full max-w-7xl overflow-hidden">
+          <div
+            data-about-orb
+            className="pointer-events-none absolute -left-8 top-8 h-44 w-44 rounded-full bg-cyan-300/20 blur-3xl dark:bg-cyan-400/10"
+            aria-hidden="true"
+          />
+          <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div className="mx-auto flex w-full max-w-3xl flex-col gap-8" data-reveal-block>
+              <div>
+                <p data-about-badge className="text-sm font-black uppercase text-cyan-600 dark:text-cyan-300">
               About FlashMind
-            </p>
+                </p>
 
-            <h2 className="mt-4 text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-              A simpler way to prepare for exams.
-            </h2>
+                <h2
+                  data-about-title
+                  className="mt-4 text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl"
+                >
+                  A simpler way to prepare for exams.
+                </h2>
+              </div>
+
+              <div data-about-copy className="flex flex-col gap-3 text-base leading-8 text-slate-600 dark:text-slate-300">
+                <p>
+                  Upload PDFs, paste study notes, or start from a topic. FlashMind uses Gemini AI to draft
+                  high-quality study materials that keep review sessions active instead of passive.
+                </p>
+
+                <p>
+                  Students can move between flashcards, quizzes, true or false checks, and chatbot help while
+                  Firebase Authentication and Firestore keep the workspace secure and persistent.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2" data-reveal-block>
+              <article data-about-card className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60 dark:border-white/10 dark:bg-slate-950/60 dark:shadow-black/30">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-600 dark:text-cyan-300">AI Study Flow</p>
+                <h3 className="mt-3 text-xl font-black text-slate-950 dark:text-white">Create, learn, and review faster.</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  Build decks manually or generate them from PDFs and AI prompts.
+                </p>
+              </article>
+
+              <article data-about-card className="rounded-3xl border border-slate-200 bg-gradient-to-br from-cyan-50 to-white p-5 shadow-lg shadow-cyan-100/50 dark:border-white/10 dark:from-cyan-500/10 dark:to-slate-950/60 dark:shadow-black/30">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-600 dark:text-cyan-300">Secure Stack</p>
+                <h3 className="mt-3 text-xl font-black text-slate-950 dark:text-white">Firebase + Gemini powered.</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  Authentication, storage, and content generation are handled with a modern AI-ready backend.
+                </p>
+              </article>
+
+              <article data-about-card className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60 dark:border-white/10 dark:bg-slate-950/60 dark:shadow-black/30 sm:col-span-2">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-600 dark:text-cyan-300">Optional PDF Management</p>
+                <h3 className="mt-3 text-xl font-black text-slate-950 dark:text-white">Cloudinary integration when needed.</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  If enabled, PDFs can be managed through Cloudinary for smoother file workflows and asset handling.
+                </p>
+              </article>
+            </div>
           </div>
-
-          <div className="flex flex-col gap-3 text-base leading-8 text-slate-600 dark:text-slate-300">
-            <p>
-              Upload PDFs, paste study notes, or start from a topic. FlashMind uses
-              Gemini AI to draft high-quality study materials that keep review
-              sessions active instead of passive.
-            </p>
-
-            <p>
-              Students can move between flashcards, quizzes, true or false checks,
-              and chatbot help while Firebase Authentication and Firestore keep the
-              workspace secure and persistent.
-            </p>
-          </div>
-
         </div>
       </section>
 
@@ -272,17 +394,19 @@ export default function Landing() {
           className="flex min-h-[100svh] items-center px-5 py-28 sm:py-32 lg:px-8"
         >
           <div className="mx-auto w-full max-w-7xl">
-            <div className="max-w-3xl">
+            <div className="max-w-3xl" data-reveal-block>
               <p className="text-sm font-black uppercase text-cyan-600 dark:text-cyan-300">
                 Features
               </p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
+              <h2 data-feature-title className="mt-4 text-3xl font-black leading-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
                 Everything students need to turn material into memory.
               </h2>
             </div>
             <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-5">
               {features.map((feature) => (
-                <FeatureCard key={feature.title} feature={feature} />
+                <div key={feature.title} data-feature-card>
+                  <FeatureCard feature={feature} />
+                </div>
               ))}
             </div>
           </div>
@@ -321,7 +445,7 @@ export default function Landing() {
       </main>
 
       <footer className="border-t border-slate-200 bg-slate-950 px-5 py-10 text-white dark:border-white/10 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_1fr_1fr]">
+        <div data-reveal-block className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-400 text-sm font-black text-slate-950">
