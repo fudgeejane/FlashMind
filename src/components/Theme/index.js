@@ -1,4 +1,7 @@
+export { classNames } from "./classNames";
+
 export {
+  default as ThemeComponents,
   ThemeToggle,
   ThemedButton,
   ThemedCard,

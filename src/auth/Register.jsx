@@ -127,7 +127,12 @@ export default function Register() {
           </ThemedButton>
         </form>
 
-       
+        {verificationEmailSent && (
+          <ThemedText variant="brand" className="mt-5 text-center text-sm font-semibold">
+            Verification email sent. Please verify your email before signing in.
+          </ThemedText>
+        )}
+
         <ThemedText variant="secondary" className="mt-6 text-center text-sm">
           Already have an account?{" "}
           <Link to="/signin" className="font-semibold text-cyan-600 dark:text-cyan-300">

@@ -3,14 +3,21 @@ import LoadingPage from "../components/Loading/LoadingPage";
 import { useAuthStatus } from "./useAuthStatus";
 
 export default function PublicRoute({ redirectAuthenticated = false }) {
-  const { checking, user } = useAuthStatus();
+  const { checking, user, userInfo } = useAuthStatus();
 
   if (checking) {
     return <LoadingPage />;
   }
 
   if (redirectAuthenticated && user?.emailVerified) {
-    return <Navigate to="/dashboard" replace />;
+    const role = userInfo?.role || "user";
+
+    return (
+      <Navigate
+        to={role === "admin" ? "/admin/dashboard" : "/dashboard"}
+        replace
+      />
+    );
   }
 
   return <Outlet />;

@@ -7,6 +7,7 @@ import {
   ThemedPage,
   ThemedText,
 } from "../components/Theme";
+import ForgotPasswordModal from "../components/auth/ForgotPasswordModal";
 import { useFirebaseAuth } from "../hooks/useFirebaseAuth";
 import Logo from "../assets/FlashMind.png";
 
@@ -14,6 +15,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useFirebaseAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -70,6 +72,13 @@ export default function Login() {
             autoComplete="current-password"
             required
           />
+          <button
+            type="button"
+            onClick={() => setIsForgotPasswordOpen(true)}
+            className="ml-auto block text-sm font-semibold text-cyan-600 transition hover:text-cyan-500 dark:text-cyan-300"
+          >
+            Forgot password?
+          </button>
           <ThemedButton
             type="submit"
             className="w-full rounded-xl py-3"
@@ -86,6 +95,11 @@ export default function Login() {
           </Link>
         </ThemedText>
       </ThemedCard>
+
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </ThemedPage>
   );
 }

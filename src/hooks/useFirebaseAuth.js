@@ -1,21 +1,21 @@
 import {
   createUserWithEmailAndPassword,
-  sendEmailVerification,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { auth, db } from "../../firebase/config";
+import actionHandler from "../auth/actionHandler";
 
 function getAuthErrorMessage(error, fallback) {
   switch (error.code) {
     case "auth/email-already-in-use":
       return "Email is already registered.";
-    case "auth/invalid-credential":
-    case "auth/user-not-found":
-    case "auth/wrong-password":
-      return "Invalid email or password.";
+    case "auth/Invalid credentials":
+    case "auth/Invalid credentials":
+    case "auth/Invalid credentials":
+      return "Invalid credentials.";
     case "auth/weak-password":
       return "Password must be at least 8 characters.";
     case "auth/too-many-requests":
@@ -54,7 +54,7 @@ export function useFirebaseAuth() {
         createdAt: serverTimestamp(),
       });
 
-      await sendEmailVerification(user);
+      await actionHandler("RESEND_VERIFICATION", { user });
 
       toast.success("Verification email sent. Please verify your email first.");
       return user;
@@ -77,7 +77,6 @@ export function useFirebaseAuth() {
         throw new Error("Email is not verified.");
       }
 
-      toast.success("Welcome back!");
       return currentUser;
     } catch (error) {
       if (error.message !== "Email is not verified.") {
@@ -91,7 +90,6 @@ export function useFirebaseAuth() {
   const logout = async () => {
     try {
       await signOut(auth);
-      toast.success("Signed out successfully.");
     } catch (error) {
       toast.error("Unable to sign out.");
       throw error;
