@@ -174,6 +174,8 @@ export function useStudyDecks() {
     async ({ topic, count }) => {
       const cards = await generateFlashcardsWithGemini(
         `Create ${count} exam-focused flashcards for general study on ${topic}.
+Keep each answer short and direct: the main answer only, not a paragraph.
+Use the explanation only for a brief one-sentence note.
 Return JSON only:
 {"cards":[{"question":"...","answer":"...","concept":"...","difficulty":"Easy|Medium|Hard","explanation":"..."}]}`
       );
@@ -205,6 +207,8 @@ Return JSON only:
 
       const cards = await generateFlashcardsWithGemini(
         `Use this PDF study text to create mixed exam preparation flashcards for general study.
+Keep each answer short and direct: the main answer only, not a paragraph.
+Use the explanation only for a brief one-sentence note.
 Return JSON only:
 {"cards":[{"question":"...","answer":"...","concept":"...","difficulty":"Easy|Medium|Hard","explanation":"..."}]}
 
@@ -287,6 +291,84 @@ ${pdfText}`
     [decks, uid]
   );
 
+  const recordStudySessionResults = useCallback(
+    async ({ deckId, results }) => {
+      if (!uid) {
+        throw new Error("Sign in before saving study progress.");
+      }
+
+      const deck = decks.find((item) => item.id === deckId);
+
+      if (!deck) {
+        throw new Error("Deck not found.");
+      }
+
+      const validResults = Array.isArray(results) ? results : [];
+
+      if (!validResults.length) {
+        throw new Error("Finish at least one card before saving.");
+      }
+
+      const resultByCardId = new Map(validResults.map((result) => [result.cardId, result]));
+      const cards = deck.cards.map((card) => {
+        const result = resultByCardId.get(card.id);
+
+        if (!result) {
+          return card;
+        }
+
+        const stats = normalizeStats(card.stats);
+        const updatedCard = {
+          ...card,
+          stats: {
+            ...stats,
+            timesStudied: stats.timesStudied + 1,
+            timesCorrect: stats.timesCorrect + (result.correct ? 1 : 0),
+            timesWrong: stats.timesWrong + (result.correct ? 0 : 1),
+            streak: result.correct ? stats.streak + 1 : 0,
+            lastReviewed: new Date().toISOString(),
+          },
+        };
+
+        return {
+          ...updatedCard,
+          stats: {
+            ...updatedCard.stats,
+            masteryScore: getMasteryScore(updatedCard),
+          },
+        };
+      });
+
+      const studySessions = [
+        ...(deck.studySessions || []),
+        ...validResults.map((result) => {
+          const nextScore = typeof result.score === "number" ? result.score : result.correct ? 100 : 0;
+
+          return {
+            id: makeId("session"),
+            mode: result.mode,
+            cardId: result.cardId,
+            score: nextScore,
+            correct: result.correct,
+            studiedAt: new Date().toISOString(),
+          };
+        }),
+      ];
+
+      await updateDoc(doc(db, "users", uid, "decks", deckId), {
+        cards,
+        studySessions,
+        quizScores: [
+          ...(deck.quizScores || []),
+          ...validResults.map((result) => (typeof result.score === "number" ? result.score : result.correct ? 100 : 0)),
+        ],
+        lastStudied: new Date().toISOString(),
+        updatedAt: serverTimestamp(),
+      });
+    },
+    [decks, uid]
+  );
+
   return {
     decks,
     loading: uid ? loading : false,
@@ -296,5 +378,6 @@ ${pdfText}`
     generateAiDeck,
     generatePdfDeck,
     recordCardResult,
+    recordStudySessionResults,
   };
 }

@@ -88,6 +88,64 @@ function DeckCard({ deck, onDelete, onOpen }) {
   );
 }
 
+function SkeletonLine({ className }) {
+  return <div className={classNames("rounded-full bg-theme-surface-muted", className)} />;
+}
+
+function DecksSkeleton() {
+  return (
+    <div className="space-y-6">
+      <ThemedCard className="animate-pulse p-4" aria-hidden="true">
+        <div className="grid rounded-xl border border-theme-border p-1 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 border border-transparent px-4 py-2"
+            >
+              <div className="h-8 w-8 shrink-0 rounded-lg bg-theme-surface-muted" />
+              <div className="h-4 w-28 rounded-full bg-theme-surface-muted" />
+              <div className="ml-auto hidden h-2.5 w-2.5 rounded-full bg-theme-surface-muted sm:block" />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 space-y-4 p-2">
+          <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-end">
+            <div className="w-full flex-1 space-y-2">
+              <SkeletonLine className="h-4 w-24" />
+              <div className="h-10 w-full rounded-lg bg-theme-surface-muted" />
+            </div>
+            <div className="h-10 w-42 rounded-lg bg-theme-surface-muted" />
+          </div>
+          <div className="space-y-2">
+            <SkeletonLine className="h-4 w-24" />
+            <div className="h-24 w-full rounded-lg bg-theme-surface-muted" />
+          </div>
+          <div className="flex justify-end">
+            <div className="h-10 w-32 rounded-lg bg-theme-surface-muted" />
+          </div>
+        </div>
+      </ThemedCard>
+
+      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <ThemedCard key={index} className="animate-pulse p-5" aria-hidden="true">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <SkeletonLine className="h-7 w-24" />
+              <div className="h-7 w-7 rounded-lg bg-theme-surface-muted" />
+            </div>
+            <div className="space-y-3">
+              <SkeletonLine className="h-6 w-3/4" />
+              <SkeletonLine className="h-4 w-full" />
+              <SkeletonLine className="h-4 w-4/5" />
+            </div>
+          </ThemedCard>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Decks() {
   const { decks, loading, error, createDeck, deleteDeck, generateAiDeck, generatePdfDeck } = useStudyDecks();
   const fileInputRef = useRef(null);
@@ -335,14 +393,11 @@ export default function Decks() {
       <section className="space-y-6">
 
         <div className="">
-        <ThemedCard className="p-4">
 
-         <div className="grid rounded-xl p-1 border border-theme-border sm:grid-cols-3">
-            {tabs.map((tab, index) => {
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 mb-4">
+            {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-              const isFirst = index === 0;
-              const isLast = index === tabs.length - 1;
 
               return (
                 <button
@@ -350,44 +405,22 @@ export default function Decks() {
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={classNames(
-                    "group flex cursor-pointer items-center gap-3 border px-4 py-2 text-left transition",
-
-                    // first = rounded left, last = rounded right
-                    isFirst && "rounded-l-xl",
-                    isLast && "rounded-r-xl",
-
+                    "flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition",
                     isActive
-                      ? "border-theme-primary bg-theme-primary text-white shadow-lg shadow-theme-primary/20"
-                      : "border-transparent bg-theme-surface text-theme-text-secondary hover:border-theme-primary/40 hover:text-theme-text-primary"
+                      ? "border-theme-primary bg-theme-primary text-white"
+                      : "border-theme-border bg-theme-surface text-theme-text-secondary hover:border-theme-primary cursor-pointer"
                   )}
                 >
-                  <span
-                    className={classNames(
-                      "grid shrink-0 place-items-center rounded-lg border transition",
-                      isActive
-                        ? "border-white/25 bg-white/15 text-white"
-                        : "border-theme-border bg-theme-surface-muted text-theme-primary group-hover:border-theme-primary/40"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-black leading-tight">
-                      {tab.label}
-                    </span>
-                  </span>
-
-                  <span
-                    className={classNames(
-                      "hidden h-2.5 w-2.5 rounded-full sm:block",
-                      isActive ? "bg-white" : "bg-theme-border"
-                    )}
-                  />
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
                 </button>
               );
             })}
           </div>
+
+        <ThemedCard className="p-4">
+
+         
 
           {activeTab === "manual" && (
             <form onSubmit={handleManualSubmit} className="mt-4 space-y-4 p-2">
@@ -520,9 +553,7 @@ export default function Decks() {
 
         <section className="space-y-4">
           {loading ? (
-            <ThemedCard className="p-8 text-center">
-              <ThemedCardHead>Loading decks...</ThemedCardHead>
-            </ThemedCard>
+            <DecksSkeleton />
           ) : filteredDecks.length ? (
             <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-4">
               {filteredDecks.map((deck) => (
@@ -530,13 +561,13 @@ export default function Decks() {
               ))}
             </div>
           ) : (
-            <ThemedCard className="p-8 text-center">
+            <div className="p-8 text-center border border-slate-300 dark:border-slate-700 border-dashed rounded-lg">
               <Layers3 className="mx-auto h-10 w-10 text-theme-primary" />
               <ThemedCardHead as="h2" className="mt-4">No decks found</ThemedCardHead>
               <ThemedCardParagraph className="mx-auto mt-2 max-w-lg">
                 Create a deck from one of the tabs. Saved decks will appear here from Firestore in real time.
               </ThemedCardParagraph>
-            </ThemedCard>
+            </div>
           )}
         </section>
       </section>

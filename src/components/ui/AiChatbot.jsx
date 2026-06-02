@@ -315,9 +315,7 @@ export default function AiChatbot() {
             </button>
           </div>
 
-          <p className="mt-2 text-center text-xs text-theme-text-muted">
-            Press Enter to send • Shift + Enter for a new line
-          </p>
+        
         </form>
         </section>
       )}

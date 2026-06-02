@@ -59,7 +59,7 @@ export default function UserLayout() {
 
           <Link to="/dashboard" className="flex items-center gap-3">
             <img src={Logo} alt="FlashMind" className="h-10 w-10 rounded-xl" />
-            <span className="hidden text-lg font-black sm:inline">FlashMind</span>
+            <span className="hidden text-xl   font-bold sm:inline">FlashMind</span>
           </Link>
 
           <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ export default function UserLayout() {
         <div className="flex items-center justify-between px-4 pb-4 lg:hidden">
           <div className="flex items-center gap-3">
             <img src={Logo} alt="FlashMind" className="h-10 w-10 rounded-xl" />
-            <span className="text-lg font-black">FlashMind</span>
+            <span className="text-lg font-bold">FlashMind</span>
           </div>
           <button
             type="button"

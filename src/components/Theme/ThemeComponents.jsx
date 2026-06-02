@@ -97,8 +97,8 @@ export function ThemeComponents() {
     layoutContainer: "mx-auto w-full max-w-7xl px-4 py-6 sm:px-6",
     iconButton: "grid h-10 w-10 place-items-center rounded-lg border border-theme-border transition hover:border-theme-primary",
     iconButtonGhost: "rounded-lg p-2 transition hover:bg-theme-surface-muted",
-    avatar: "grid h-8 w-8 place-items-center rounded-lg bg-theme-primary/15 text-theme-primary",
-    profileButton: "flex items-center gap-2 rounded-lg border border-theme-border bg-theme-surface px-2 py-2 text-sm font-semibold transition hover:border-theme-primary",
+    avatar: "grid h-8 w-8 place-items-center rounded-full bg-theme-primary/15 text-theme-primary",
+    profileButton: "flex items-center gap-2 rounded-full border border-theme-border bg-theme-surface px-2 py-2 text-sm font-semibold transition hover:border-theme-primary",
     dropdown: "absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-theme-border bg-theme-surface shadow-xl",
     dropdownSection: "border-t border-theme-border p-2",
     dropdownItem: "inline-flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-sm font-semibold text-theme-text-secondary transition hover:bg-theme-surface-muted hover:text-theme-text-primary",
@@ -122,14 +122,14 @@ export function ThemeToggle() {
       aria-pressed={isDark}
       onClick={toggleMode}
       className={classNames(
-        "group relative inline-flex h-7.5 w-14 cursor-pointer items-center rounded-lg border p-1 shadow-sm transition hover:border-theme-primary",
+        "group relative inline-flex h-7.5 w-14 cursor-pointer items-center rounded-full border p-1 shadow-sm transition hover:border-theme-primary",
         classes.surface,
         classes.border
       )}
     >
       <span
         className={classNames(
-          "grid h-5 w-5 place-items-center rounded-lg text-sm font-bold shadow-sm transition",
+          "grid h-5 w-5 place-items-center rounded-full text-sm font-bold shadow-sm transition",
           isDark ? "translate-x-6 bg-theme-primary text-slate-950" : "translate-x-0 bg-theme-secondary text-white"
         )}
       >

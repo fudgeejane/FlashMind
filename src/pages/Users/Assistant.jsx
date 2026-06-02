@@ -12,12 +12,10 @@ import {
 import { useStudyDecks } from "../../hooks/useStudyDecks";
 
 const prompts = [
-  "Explain the weakest cards in this deck.",
-  "Create a 10-question practice exam.",
   "Generate mnemonics for confusing concepts.",
   "Summarize this deck into key ideas.",
-  "Give me study tips for tomorrow's exam.",
-  "Explain why my wrong answer is incorrect.",
+  "Create a practice exam based on this deck.",
+  "Explain the concepts in this deck like I'm a beginner.",
 ];
 
 async function askGemini(prompt, deck) {
@@ -236,7 +234,7 @@ export default function Assistant() {
           </form>
         </ThemedCard>
 
-        <aside className="min-h-0 max-h-[calc(100vh-15rem)] space-y-4 overflow-y-auto pr-1">
+        <aside className="min-h-0 max-h-[calc(100vh-15rem)] space-y-4 o pr-1">
 
           <label className="block min-w-64">
           <span className="text-sm font-bold text-theme-text-primary">Current deck</span>
@@ -276,7 +274,7 @@ export default function Assistant() {
                   key={prompt}
                   type="button"
                   onClick={() => submitPrompt(prompt)}
-                  className="rounded-lg border border-theme-border bg-theme-surface-muted px-4 py-3 text-left text-sm font-bold text-theme-text-primary transition hover:border-theme-primary"
+                  className="rounded-lg cursor-pointer border border-theme-border bg-theme-surface-muted px-4 py-3 text-left text-sm font-bold text-theme-text-primary transition hover:border-theme-primary"
                 >
                   {prompt}
                 </button>
