@@ -68,7 +68,8 @@ export default function AiChatbot() {
 
   const hiddenOnStudy = location.pathname === "/study" || location.pathname.startsWith("/study/");
   const hiddenOnLanding = location.pathname === "/";
-  const hiddenOnPage = hiddenOnLanding || hiddenOnStudy;
+  const hiddenOnAuth = location.pathname === "/signin" || location.pathname === "/signup" || location.pathname.startsWith("/auth/");
+  const hiddenOnPage = hiddenOnLanding || hiddenOnStudy || hiddenOnAuth;
 
   useEffect(() => {
     if (hiddenOnPage) {
