@@ -52,7 +52,7 @@ export default function Register() {
   }
 
   return (
-    <ThemedPage as="main" className="grid place-items-center px-5 py-12">
+    <ThemedPage as="main" className="grid place-items-center px-5 py-12 h-screen">
       <ThemedCard as="section" className="w-full max-w-md p-8 shadow-xl">
         <Link to="/" className="mb-8 mx-auto flex items-center justify-center">
           <img src={Logo} alt="FlashMind" className="h-14 w-14 rounded-xl" />
