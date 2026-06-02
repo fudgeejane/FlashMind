@@ -30,10 +30,15 @@ function getAllSessions(decks) {
 function buildWeeklyStudy(decks) {
   const sessions = getAllSessions(decks);
   const today = startOfDay(new Date());
+  const todayDay = today.getDay();
+  const mondayOffset = (todayDay + 6) % 7; // Sunday -> 6, Monday -> 0, Tuesday -> 1, ...
+  const startOfWeek = new Date(today);
+
+  startOfWeek.setDate(today.getDate() - mondayOffset);
 
   return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() - (6 - index));
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + index);
     const daySessions = sessions.filter((session) => {
       const sessionDate = getSessionDate(session);
       return sessionDate && startOfDay(sessionDate).getTime() === date.getTime();
@@ -45,6 +50,7 @@ function buildWeeklyStudy(decks) {
 
     return {
       day: dayLabels[date.getDay()],
+      date: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
       cards: daySessions.length,
       accuracy,
     };

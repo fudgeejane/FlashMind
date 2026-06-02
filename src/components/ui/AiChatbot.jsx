@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { Bot, Loader2, MessageCircle, SendHorizontal, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { classNames } from "../Theme";
 
@@ -110,6 +110,84 @@ export default function AiChatbot() {
     }
   }
 
+  function parseInlineText(text) {
+    const tokens = [];
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+    let lastIndex = 0;
+    let match;
+    let key = 0;
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        tokens.push(text.slice(lastIndex, match.index));
+      }
+
+      const token = match[0];
+      const content = token.slice(token.startsWith("**") ? 2 : 1, token.endsWith("**") ? -2 : -1);
+
+      if (token.startsWith("**")) {
+        tokens.push(
+          <strong key={`strong-${key++}`} className="font-bold">
+            {content}
+          </strong>
+        );
+      } else {
+        tokens.push(
+          <em key={`em-${key++}`} className="italic">
+            {content}
+          </em>
+        );
+      }
+
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+      tokens.push(text.slice(lastIndex));
+    }
+
+    return tokens;
+  }
+
+  function renderMessageText(text) {
+    const lines = text.split("\n");
+    const blocks = [];
+    let listItems = [];
+
+    function flushList(index) {
+      if (!listItems.length) {
+        return;
+      }
+
+      blocks.push(
+        <ul key={`list-${index}`} className="ml-5 list-disc space-y-1 text-sm leading-6">
+          {listItems.map((item, itemIndex) => (
+            <li key={`li-${index}-${itemIndex}`}>{item}</li>
+          ))}
+        </ul>
+      );
+      listItems = [];
+    }
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+
+      if (trimmed.startsWith("- ")) {
+        listItems.push(parseInlineText(trimmed.slice(2)));
+      } else {
+        flushList(index);
+        blocks.push(
+          <div key={`line-${index}`} className="text-sm leading-6">
+            {parseInlineText(line)}
+          </div>
+        );
+      }
+    });
+
+    flushList(lines.length);
+    return blocks;
+  }
+
   if (hiddenOnPage) {
     return null;
   }
@@ -119,7 +197,7 @@ export default function AiChatbot() {
       {open && (
         <section
           aria-label="FlashMind AI chatbot"
-          className="flex h-[min(58vh,27rem)] w-[calc(100vw-2rem)] max-w-[23rem] flex-col overflow-hidden rounded-2xl border border-theme-border bg-theme-surface text-theme-text-primary shadow-2xl shadow-slate-950/20 transition-colors"
+          className="flex h-[min(58vh,32rem)] w-[calc(100vw-2rem)] max-w-[24rem] flex-col overflow-hidden rounded-2xl border border-theme-border bg-theme-surface text-theme-text-primary shadow-2xl shadow-slate-950/20 transition-colors"
         >
           <header className="flex items-center justify-between border-b border-theme-border px-4 py-3 bg-theme-surface">
             <div className="flex items-center gap-3">
@@ -135,7 +213,7 @@ export default function AiChatbot() {
               type="button"
               aria-label="Close FlashMind AI"
               onClick={() => setOpen(false)}
-              className="grid h-9 w-9 place-items-center rounded-full text-theme-text-secondary transition hover:bg-theme-surface-muted hover:text-theme-text-primary"
+              className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-theme-text-secondary transition hover:bg-theme-surface-muted hover:text-theme-text-primary"
             >
               <X className="h-5 w-5" />
             </button>
@@ -147,21 +225,21 @@ export default function AiChatbot() {
                 key={`${message.role}-${index}`}
                 className={classNames("flex", message.role === "user" ? "justify-end" : "justify-start")}
               >
-                <p
+                <div
                   className={classNames(
-                    "max-w-[86%] whitespace-pre-wrap rounded-2xl px-4 py-2 text-sm leading-6",
+                    "max-w-[86%] whitespace-pre-wrap rounded-xl px-4 border border-theme-border py-2 text-sm leading-6",
                     message.role === "user"
                       ? "bg-theme-primary text-white"
                       : "bg-theme-surface-muted text-theme-text-primary"
                   )}
                 >
-                  {message.text}
-                </p>
+                  {renderMessageText(message.text)}
+                </div>
               </div>
             ))}
             {loading && (
               <div className="flex justify-start">
-                <p className="inline-flex items-center gap-2 rounded-2xl bg-theme-surface-muted px-4 py-2 text-sm text-theme-text-secondary">
+                <p className="inline-flex items-center gap-2 rounded-xl border border-theme-border bg-theme-surface-muted px-4 py-2 text-sm text-theme-text-secondary">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Thinking...
                 </p>
@@ -170,35 +248,76 @@ export default function AiChatbot() {
             <div ref={endRef} />
           </div>
 
-          <form onSubmit={handleSubmit} className="border-t border-theme-border p-3 bg-theme-surface">
-            <div className="flex items-end gap-2">
-              <label className="sr-only" htmlFor="flashmind-ai-message">
-                Message FlashMind AI
-              </label>
-              <textarea
-                id="flashmind-ai-message"
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    event.currentTarget.form?.requestSubmit();
-                  }
-                }}
-                rows={2}
-                placeholder="Ask FlashMind AI..."
-                className="max-h-24 min-h-11 flex-1 resize-none rounded-xl border border-theme-border bg-theme-surface px-3 py-2 text-sm text-theme-text-primary outline-none transition placeholder:text-theme-text-muted focus:border-theme-primary focus:ring-theme-primary/15"
-              />
-              <button
-                type="submit"
-                disabled={!draft.trim() || loading}
-                aria-label="Send message"
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-theme-primary text-white transition hover:bg-theme-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-              </button>
-            </div>
-          </form>
+         <form
+          onSubmit={handleSubmit}
+          className="border-t border-theme-border bg-theme-surface p-4"
+        >
+          <div className="flex items-end gap-3 rounded-xl border border-theme-border bg-theme-background px-3 py-2 ">
+            <label className="sr-only" htmlFor="flashmind-ai-message">
+              Message FlashMind AI
+            </label>
+
+            <textarea
+              id="flashmind-ai-message"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  event.currentTarget.form?.requestSubmit();
+                }
+              }}
+              rows={1}
+              placeholder="Ask FlashMind AI anything..."
+              className="
+                min-h-[24px]
+                max-h-40
+                flex-1
+                resize-none
+                bg-transparent
+                py-2
+                text-sm
+                text-theme-text-primary
+                placeholder:text-theme-text-muted
+                outline-none
+                overflow-y-auto
+              "
+            />
+
+            <button
+              type="submit"
+              disabled={!draft.trim() || loading}
+              aria-label="Send message"
+              className="
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-xl
+                bg-theme-primary
+                text-white
+                transition-all
+                hover:bg-theme-primary-hover
+                hover:scale-105
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+                disabled:hover:scale-100
+              "
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <SendHorizontal className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+
+          <p className="mt-2 text-center text-xs text-theme-text-muted">
+            Press Enter to send • Shift + Enter for a new line
+          </p>
+        </form>
         </section>
       )}
 
@@ -208,9 +327,9 @@ export default function AiChatbot() {
           aria-label="Open FlashMind AI"
           aria-expanded={open}
           onClick={() => setOpen(true)}
-          className="grid h-14 w-14 place-items-center rounded-full bg-theme-primary text-white shadow-xl shadow-theme-primary/30 transition hover:-translate-y-0.5 hover:bg-theme-primary-hover focus:outline-none focus:ring-4 focus:ring-theme-primary/25"
+          className="grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-theme-primary text-white shadow-xl shadow-theme-primary/30 transition hover:-translate-y-0.5 hover:bg-theme-primary-hover focus:outline-none focus:ring-4 focus:ring-theme-primary/25"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-5 w-5" />
         </button>
       )}
     </div>
