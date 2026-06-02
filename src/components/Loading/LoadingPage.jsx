@@ -3,7 +3,7 @@ import { ThemedPage } from "../Theme";
 
 export default function LoadingPage() {
   return (
-    <ThemedPage className="grid place-items-center px-5">
+    <ThemedPage className="grid place-items-center px-5 h-screen">
       <section className="flex flex-col items-center text-center">
         <div className="relative">
           <div className="absolute inset-0 animate-ping rounded-3xl bg-theme-primary/25" />

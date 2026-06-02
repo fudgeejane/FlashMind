@@ -48,7 +48,7 @@ export default function AdminLayout() {
   const sidebarWidth = collapsed ? "lg:w-20" : "lg:w-72";
 
   return (
-    <div className={styles.page}>
+    <div className={classNames(styles.page, "flex flex-col min-h-screen")}>
       {sidebarOpen && (
         <button
           type="button"
@@ -138,7 +138,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className={classNames("transition-all duration-300", collapsed ? "lg:pl-20" : "lg:pl-72")}>
+      <div className={classNames("flex-1 transition-all duration-300 flex flex-col", collapsed ? "lg:pl-20" : "lg:pl-72")}>
         <header className={classNames("sticky top-0 z-30", styles.header)}>
           <div
             key={location.pathname}
@@ -177,7 +177,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="min-h-[calc(100vh-4rem)] px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import LoadingPage from "./components/Loading/LoadingPage";
+import AiChatbot from "./components/ui/AiChatbot";
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
   return (
     <BrowserRouter>
       <AppRoutes />
+      <AiChatbot />
     </BrowserRouter>
   );
 }

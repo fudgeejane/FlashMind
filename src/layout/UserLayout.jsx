@@ -2,14 +2,16 @@ import { useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
+  Bot,
   ChevronDown,
+  CircleHelp,
   LayoutDashboard,
   Layers3,
   LogOut,
   Menu,
+  Settings,
   UserRound,
   X,
-  UserCog
 } from "lucide-react";
 import Logo from "../assets/FlashMind.png";
 import { useAuth } from "../auth/contexts/useAuthContext";
@@ -20,7 +22,9 @@ const userNavItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { label: "Decks", path: "/decks", icon: Layers3 },
   { label: "Study", path: "/study", icon: BookOpen },
-  { label: "Profile", path: "/profile", icon: UserCog },
+  { label: "AI Assistant", path: "/assistant", icon: Bot },
+  { label: "Settings", path: "/settings", icon: Settings },
+  { label: "Help Center", path: "/help-center", icon: CircleHelp },
 ];
 
 export default function UserLayout() {
@@ -39,7 +43,7 @@ export default function UserLayout() {
   }
 
   return (
-    <ThemedPage>
+    <ThemedPage className="flex flex-col min-h-screen">
       <header className={classNames("sticky top-0 z-40", styles.header)}>
         <div key={location.pathname} className={styles.routeProgress} />
 
@@ -92,12 +96,12 @@ export default function UserLayout() {
                    
                    
                   <NavLink
-                    to="/profile"
+                    to="/settings"
                     onClick={() => setProfileOpen(false)}
                     className={classNames("border-t border-theme-border", styles.dropdownItem)}
                   >
-                     <UserCog className="h-4 w-4" />
-                     Profile
+                     <Settings className="h-4 w-4" />
+                     Settings
                   </NavLink>
                   <button
                     type="button"
@@ -203,7 +207,7 @@ export default function UserLayout() {
         </div>
       </aside>
 
-      <div className={`transition-all duration-300 ${sidebarExpanded ? "lg:pl-72" : "lg:pl-20"}`}>
+      <div className={`flex-1 transition-all duration-300 ${sidebarExpanded ? "lg:pl-72" : "lg:pl-20"}`}>
         <main className={styles.layoutContainer}>
           <Outlet />
         </main>

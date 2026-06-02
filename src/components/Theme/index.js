@@ -5,6 +5,8 @@ export {
   ThemeToggle,
   ThemedButton,
   ThemedCard,
+  ThemedCardHead,
+  ThemedCardParagraph,
   ThemedInput,
   ThemedPage,
   ThemedSection,

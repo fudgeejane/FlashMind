@@ -4,7 +4,9 @@
 
 @theme {
   --color-theme-primary: var(--theme-primary);
+  --color-theme-primary-hover: var(--theme-primary-hover);
   --color-theme-secondary: var(--theme-secondary);
+  --color-theme-secondary-hover: var(--theme-secondary-hover);
   --color-theme-accent: var(--theme-accent);
   --color-theme-success: var(--theme-success);
   --color-theme-warning: var(--theme-warning);
@@ -22,21 +24,23 @@
 
 :root {
   color-scheme: light;
-  --theme-primary: #0891b2;
-  --theme-secondary: #0f172a;
-  --theme-accent: #22c55e;
-  --theme-success: #16a34a;
-  --theme-warning: #d97706;
-  --theme-error: #dc2626;
-  --theme-background: #f8fafc;
-  --theme-background-elevated: #ffffff;
-  --theme-surface: #ffffff;
-  --theme-surface-muted: #f1f5f9;
-  --theme-text-primary: #020617;
+  --theme-primary: #4F46E5;
+  --theme-primary-hover: #4338CA;
+  --theme-secondary: #06B6D4;
+  --theme-secondary-hover: #0E7490;
+  --theme-accent: #8B5CF6;
+  --theme-success: #22C55E;
+  --theme-warning: #F59E0B;
+  --theme-error: #EF4444;
+  --theme-background: #F8FAFC;
+  --theme-background-elevated: #FFFFFF;
+  --theme-surface: #FFFFFF;
+  --theme-surface-muted: #F1F5F9;
+  --theme-text-primary: #0F172A;
   --theme-text-secondary: #475569;
-  --theme-text-muted: #64748b;
-  --theme-border: #e2e8f0;
-  --theme-border-strong: #cbd5e1;
+  --theme-text-muted: #64748B;
+  --theme-border: #E2E8F0;
+  --theme-border-strong: #CBD5E1;
 }
 
 :root.dark {
