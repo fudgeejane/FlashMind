@@ -24,7 +24,6 @@ const userNavItems = [
   { label: "Study", path: "/study", icon: BookOpen },
   { label: "AI Assistant", path: "/assistant", icon: Bot },
   { label: "Settings", path: "/settings", icon: Settings },
-  { label: "Help Center", path: "/help-center", icon: CircleHelp },
 ];
 
 export default function UserLayout() {
@@ -68,10 +67,14 @@ export default function UserLayout() {
               <button
                 type="button"
                 onClick={() => setProfileOpen((open) => !open)}
-                className={styles.profileButton}
+                className={`${styles.profileButton} cursor-pointer`}             
               >
-                <span className={styles.avatar}>
-                  <UserRound className="h-4 w-4" />
+                <span className={classNames(styles.avatar, "overflow-hidden")}>
+                  {userInfo?.avatar ? (
+                    <img src={userInfo.avatar} alt="Profile avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    <UserRound className="h-4 w-4" />
+                  )}
                 </span>
                 <span className="hidden max-w-32 truncate lg:inline">
                   {userInfo?.firstName || user?.email || "Profile"}
@@ -83,6 +86,15 @@ export default function UserLayout() {
               {profileOpen && (
                 <div className={styles.dropdown}>
                   <div className="p-4 text-center">
+                    <div className="mx-auto mb-3 h-14 w-14 overflow-hidden rounded-full bg-theme-primary/15">
+                      {userInfo?.avatar ? (
+                        <img src={userInfo.avatar} alt="Profile avatar" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center text-theme-primary">
+                          <UserRound className="h-6 w-6" />
+                        </span>
+                      )}
+                    </div>
                     <p className="truncate text-sm font-bold">
                       {userInfo?.firstName || "Anonymous"} {userInfo?.lastName || "User"}
                     </p>
@@ -102,6 +114,14 @@ export default function UserLayout() {
                   >
                      <Settings className="h-4 w-4" />
                      Settings
+                  </NavLink>
+                  <NavLink
+                    to="/help-center"
+                    onClick={() => setProfileOpen(false)}
+                    className={classNames("border-t border-theme-border", styles.dropdownItem)}
+                  >
+                    <CircleHelp className="h-4 w-4" />
+                    Help Center
                   </NavLink>
                   <button
                     type="button"
@@ -184,7 +204,27 @@ export default function UserLayout() {
           })}
         </nav>
 
-        <div className="border-t border-theme-border p-3">
+        <div className="border-t border-theme-border p-3 space-y-2">
+          <NavLink
+            to="/help-center"
+            onClick={() => setSidebarOpen(false)}
+            className={classNames(
+              styles.sidebarItemBase,
+              styles.sidebarItem,
+              "w-full",
+              sidebarExpanded ? "lg:justify-start lg:px-4" : "lg:justify-center lg:gap-0 lg:px-0"
+            )}
+          >
+            <CircleHelp className="h-4 w-4 shrink-0" />
+            <span
+              className={`whitespace-nowrap text-sm transition lg:overflow-hidden ${
+                sidebarExpanded ? "lg:max-w-40 lg:opacity-100" : "lg:max-w-0 lg:opacity-0"
+              }`}
+            >
+              Help Center
+            </span>
+          </NavLink>
+
           <button
             type="button"
             onClick={handleLogout}

@@ -23,7 +23,9 @@ service cloud.firestore {
         "lastName",
         "email",
         "role",
-        "createdAt"
+        "avatar",
+        "createdAt",
+        "updatedAt"
       ]);
     }
 
