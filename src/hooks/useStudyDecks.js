@@ -171,19 +171,18 @@ export function useStudyDecks() {
   );
 
   const generateAiDeck = useCallback(
-    async ({ topic, subject, count }) => {
+    async ({ topic, count }) => {
       const cards = await generateFlashcardsWithGemini(
-        `Create ${count} exam-focused flashcards for ${subject || "general study"} on ${topic}.
+        `Create ${count} exam-focused flashcards for general study on ${topic}.
 Return JSON only:
 {"cards":[{"question":"...","answer":"...","concept":"...","difficulty":"Easy|Medium|Hard","explanation":"..."}]}`
       );
 
       await createDeck({
         title: `${topic} Deck`,
-        description: `AI-generated ${subject || "study"} deck with key concepts and common test questions.`,
-        subject,
+        description: "AI-generated study deck with key concepts and common test questions.",
         source: "AI Generated",
-        tags: [subject, topic, "Gemini"].filter(Boolean),
+        tags: [topic, "Gemini"],
         cards,
       });
     },
@@ -191,7 +190,7 @@ Return JSON only:
   );
 
   const generatePdfDeck = useCallback(
-    async ({ file, title, subject, extractedText }) => {
+    async ({ file, title, extractedText }) => {
       let pdfUrl = "";
       const pdfText = extractedText?.trim();
 
@@ -205,7 +204,7 @@ Return JSON only:
       }
 
       const cards = await generateFlashcardsWithGemini(
-        `Use this PDF study text to create mixed exam preparation flashcards for ${subject || "general study"}.
+        `Use this PDF study text to create mixed exam preparation flashcards for general study.
 Return JSON only:
 {"cards":[{"question":"...","answer":"...","concept":"...","difficulty":"Easy|Medium|Hard","explanation":"..."}]}
 
@@ -216,9 +215,8 @@ ${pdfText}`
       await createDeck({
         title: title || file?.name?.replace(/\.pdf$/i, "") || "PDF Generated Deck",
         description: "Generated from uploaded PDF study material.",
-        subject,
         source: "PDF Generated",
-        tags: [subject, "PDF", "Gemini"].filter(Boolean),
+        tags: ["PDF", "Gemini"],
         cards,
         pdfUrl,
       });

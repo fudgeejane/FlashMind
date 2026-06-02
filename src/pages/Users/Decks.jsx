@@ -1,18 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import {
   Bot,
-  ChevronLeft,
-  ChevronRight,
   CheckCircle2,
   FileText,
   FileUp,
   Layers3,
   Plus,
-  Search,
   Sparkles,
-  Tags,
   Trash2,
-  X,
 } from "lucide-react";
 import {
   classNames,
@@ -24,32 +20,33 @@ import {
   ThemedPage,
 } from "../../components/Theme";
 import { useStudyDecks } from "../../hooks/useStudyDecks";
+import ConfirmModal from "../../utils/ConfirmModal";
+import GitPreview from "../../utils/DeckPreview";
+import ManualCardModal from "../../utils/ManualCardModal";
 import { extractTextFromPdf } from "../../hooks/usePdfText";
-import { getMasteryLevel, getMasteryScore } from "../../utils/studyMetrics";
 
 const tabs = [
-  { id: "manual", label: "Manual", icon: Plus },
-  { id: "ai", label: "AI Generated", icon: Bot },
-  { id: "pdf", label: "PDF Gen", icon: FileUp },
+  {
+    id: "manual",
+    label: "Manual Creation",
+    description: "Build custom cards",
+    icon: Plus,
+  },
+  {
+    id: "ai",
+    label: "AI Generated",
+    description: "Create from a topic",
+    icon: Bot,
+  },
+  {
+    id: "pdf",
+    label: "PDF Generation",
+    description: "Extract from files",
+    icon: FileUp,
+  },
 ];
 
-const emptyCard = {
-  question: "",
-  answer: "",
-};
-
-function getDeckMastery(deck) {
-  if (!deck.cards.length) {
-    return 0;
-  }
-
-  const score = deck.cards.reduce((sum, card) => sum + getMasteryScore(card), 0) / deck.cards.length;
-  return Math.round(score);
-}
-
 function DeckCard({ deck, onDelete, onOpen }) {
-  const mastery = getDeckMastery(deck);
-
   return (
     <ThemedCard
       className="cursor-pointer p-5"
@@ -63,14 +60,11 @@ function DeckCard({ deck, onDelete, onOpen }) {
         }
       }}
     >
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <span className="grid h-11 w-11 place-items-center rounded-lg bg-theme-primary/15 text-theme-primary">
-          <Layers3 className="h-5 w-5" />
+      <div className="mb-2 flex items-center justify-between gap-4">
+        <span className="rounded-full border border-theme-border bg-theme-surface-muted px-3 py-1 text-xs font-semibold text-theme-text-secondary">
+          {deck.source}
         </span>
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-theme-surface-muted px-3 py-1 text-xs font-black text-theme-text-secondary">
-            {deck.source}
-          </span>
+        <div className="flex items-center gap-2 sm:justify-end">
           <button
             type="button"
             onClick={(event) => {
@@ -78,148 +72,51 @@ function DeckCard({ deck, onDelete, onOpen }) {
               onDelete(deck.id);
             }}
             aria-label={`Delete ${deck.title}`}
-            className="grid h-8 w-8 place-items-center rounded-lg border border-theme-border text-theme-text-muted transition hover:border-theme-error hover:text-theme-error"
+            className="grid p-1 cursor-pointer place-items-center rounded-lg border border-theme-border text-theme-text-muted transition-colors hover:border-theme-error hover:text-theme-error"
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
       </div>
-      <ThemedCardHead as="h2" className="text-xl">{deck.title}</ThemedCardHead>
+      <ThemedCardHead as="h2" className="min-w-0 flex-1 break-words text-xl">
+        {deck.title}
+      </ThemedCardHead>
+
       <ThemedCardParagraph className="mt-2 min-h-12">{deck.description || "No description yet."}</ThemedCardParagraph>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {deck.tags.map((tag, index) => (
-          <span key={`${deck.id}-${tag}-${index}`} className="inline-flex items-center gap-1 rounded-full bg-theme-primary/10 px-3 py-1 text-xs font-bold text-theme-primary">
-            <Tags className="h-3 w-3" />
-            {tag}
-          </span>
-        ))}
-      </div>
-      <div className="mt-5 grid grid-cols-3 gap-3 text-center">
-        <div className="rounded-lg bg-theme-surface-muted p-3">
-          <p className="text-lg font-black text-theme-text-primary">{deck.cards.length}</p>
-          <p className="text-xs font-bold text-theme-text-muted">Cards</p>
-        </div>
-        <div className="rounded-lg bg-theme-surface-muted p-3">
-          <p className="text-lg font-black text-theme-text-primary">{deck.quizScores.at(-1) || 0}%</p>
-          <p className="text-xs font-bold text-theme-text-muted">Last quiz</p>
-        </div>
-        <div className="rounded-lg bg-theme-surface-muted p-3">
-          <p className="text-lg font-black text-theme-text-primary">{mastery}%</p>
-          <p className="text-xs font-bold text-theme-text-muted">{getMasteryLevel(mastery)}</p>
-        </div>
-      </div>
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-theme-surface-muted">
-        <div className="h-full rounded-full bg-theme-primary" style={{ width: `${mastery}%` }} />
-      </div>
+
     </ThemedCard>
-  );
-}
-
-function DeckPreviewModal({ deck, cardIndex, onClose, onPrevious, onNext }) {
-  if (!deck) {
-    return null;
-  }
-
-  const card = deck.cards[cardIndex] || null;
-
-  return (
-    <div className="modal-overlay">
-
-      
-
-      <ThemedCard className="max-h-[90vh] w-full max-w-3xl overflow-hidden">
-        <header className="flex items-start justify-between gap-4 border-b border-theme-border p-5">
-          <div>
-            <p className="text-xs font-black uppercase tracking-wide text-theme-primary">Deck preview</p>
-            <ThemedCardHead as="h2" className="mt-1">{deck.title}</ThemedCardHead>
-            <ThemedCardParagraph>{deck.cards.length} questions and answers</ThemedCardParagraph>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close deck preview"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-theme-border text-theme-text-secondary transition hover:border-theme-primary hover:text-theme-text-primary"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </header>
-
-        {card ? (
-          <div className="space-y-5 overflow-y-auto p-5">
-            <div className="flex items-center justify-between gap-3">
-              <span className="rounded-full bg-theme-primary/10 px-3 py-1 text-xs font-black text-theme-primary">
-                Question {cardIndex + 1} of {deck.cards.length}
-              </span>
-              <span className="rounded-full bg-theme-surface-muted px-3 py-1 text-xs font-black text-theme-text-secondary">
-                {card.difficulty || "Medium"}
-              </span>
-            </div>
-
-            <section className="rounded-lg border border-theme-border bg-theme-surface-muted p-5">
-              <p className="text-xs font-black uppercase tracking-wide text-theme-primary">Question</p>
-              <p className="mt-3 text-xl font-black leading-tight text-theme-text-primary">{card.question}</p>
-            </section>
-
-            <section className="rounded-lg border border-theme-border bg-theme-surface-muted p-5">
-              <p className="text-xs font-black uppercase tracking-wide text-theme-success">Answer</p>
-              <p className="mt-3 text-lg font-bold leading-7 text-theme-text-primary">{card.answer}</p>
-            </section>
-
-            {(card.concept || card.explanation) && (
-              <section className="rounded-lg border border-theme-border bg-theme-surface-muted p-5">
-                <p className="text-xs font-black uppercase tracking-wide text-theme-text-muted">Notes</p>
-                {card.concept && <p className="mt-3 text-sm font-black text-theme-text-primary">{card.concept}</p>}
-                {card.explanation && <p className="mt-2 text-sm leading-6 text-theme-text-secondary">{card.explanation}</p>}
-              </section>
-            )}
-          </div>
-        ) : (
-          <div className="p-8 text-center">
-            <ThemedCardHead as="h3">No cards in this deck</ThemedCardHead>
-          </div>
-        )}
-
-        <footer className="flex items-center justify-between gap-3 border-t border-theme-border p-5">
-          <ThemedButton type="button" variant="secondary" onClick={onPrevious} disabled={!deck.cards.length} className="gap-2">
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </ThemedButton>
-          <ThemedButton type="button" onClick={onNext} disabled={!deck.cards.length} className="gap-2">
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </ThemedButton>
-        </footer>
-      </ThemedCard>
-    </div>
   );
 }
 
 export default function Decks() {
   const { decks, loading, error, createDeck, deleteDeck, generateAiDeck, generatePdfDeck } = useStudyDecks();
+  const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState("manual");
-  const [search, setSearch] = useState("");
   const [manualDeck, setManualDeck] = useState({
     title: "",
     description: "",
-    tags: "",
-    cards: [{ ...emptyCard }],
+    cards: [],
   });
-  const [aiRequest, setAiRequest] = useState({ topic: "", subject: "", count: 8 });
-  const [pdfRequest, setPdfRequest] = useState({ title: "", subject: "", extractedText: "", file: null });
-  const [status, setStatus] = useState("");
+  const [aiRequest, setAiRequest] = useState({ topic: "", count: 8 });
+  const [pdfRequest, setPdfRequest] = useState({ title: "", extractedText: "", file: null });
   const [saving, setSaving] = useState(false);
   const [extractingPdf, setExtractingPdf] = useState(false);
   const [previewDeck, setPreviewDeck] = useState(null);
   const [previewCardIndex, setPreviewCardIndex] = useState(0);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+  const [cardDraft, setCardDraft] = useState({ question: "", answer: "" });
+  const [manualCardToDelete, setManualCardToDelete] = useState(null);
+  const [isManualCardDeleteConfirmOpen, setIsManualCardDeleteConfirmOpen] = useState(false);
+  const [deckToDelete, setDeckToDelete] = useState(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  const filteredDecks = useMemo(() => {
-    return decks.filter((deck) =>
-      [deck.title, deck.description, deck.subject, deck.source, ...deck.tags]
-        .join(" ")
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [decks, search]);
+  const filteredDecks = decks;
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   function updateManualCard(index, field, value) {
     setManualDeck((current) => ({
@@ -228,14 +125,68 @@ export default function Decks() {
     }));
   }
 
+  function handleCardDraftChange(field, value) {
+    setCardDraft((current) => ({ ...current, [field]: value }));
+  }
+
+  function openManualCardModal() {
+    setCardDraft({ question: "", answer: "" });
+    setIsCardModalOpen(true);
+  }
+
+  function closeManualCardModal() {
+    setIsCardModalOpen(false);
+    setCardDraft({ question: "", answer: "" });
+    closeManualCardDeleteConfirm();
+  }
+
+  function saveManualCard() {
+    const trimmedQuestion = cardDraft.question.trim();
+    const trimmedAnswer = cardDraft.answer.trim();
+
+    if (!trimmedQuestion || !trimmedAnswer) {
+      return;
+    }
+
+    setManualDeck((current) => ({
+      ...current,
+      cards: [...current.cards, { question: trimmedQuestion, answer: trimmedAnswer }],
+    }));
+
+    setCardDraft({ question: "", answer: "" });
+  }
+
+  function requestDeleteManualCard(index) {
+    setManualCardToDelete(index);
+    setIsManualCardDeleteConfirmOpen(true);
+  }
+
+  function closeManualCardDeleteConfirm() {
+    setManualCardToDelete(null);
+    setIsManualCardDeleteConfirmOpen(false);
+  }
+
+  function confirmDeleteManualCard() {
+    if (manualCardToDelete === null) {
+      return;
+    }
+
+    setManualDeck((current) => ({
+      ...current,
+      cards: current.cards.filter((_, cardIndex) => cardIndex !== manualCardToDelete),
+    }));
+
+    closeManualCardDeleteConfirm();
+  }
+
   function addManualCard() {
-    setManualDeck((current) => ({ ...current, cards: [...current.cards, { ...emptyCard }] }));
+    openManualCardModal();
   }
 
   async function handleManualSubmit(event) {
     event.preventDefault();
     setSaving(true);
-    setStatus("Saving manual deck to Firebase...");
+    toast.loading("Saving manual deck to Firebase...", { id: "manual-deck" });
 
     try {
       await createDeck({
@@ -243,13 +194,13 @@ export default function Decks() {
         description: manualDeck.description,
         subject: "Custom",
         source: "Manual",
-        tags: manualDeck.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+        tags: [],
         cards: manualDeck.cards.filter((card) => card.question.trim() && card.answer.trim()),
       });
-      setManualDeck({ title: "", description: "", tags: "", cards: [{ ...emptyCard }] });
-      setStatus("Manual deck saved to Firebase.");
+      setManualDeck({ title: "", description: "", cards: [] });
+      toast.success("Manual deck saved to Firebase.", { id: "manual-deck" });
     } catch (submitError) {
-      setStatus(submitError.message);
+      toast.error(submitError.message, { id: "manual-deck" });
     } finally {
       setSaving(false);
     }
@@ -258,14 +209,14 @@ export default function Decks() {
   async function handleAiSubmit(event) {
     event.preventDefault();
     setSaving(true);
-    setStatus("Generating and saving AI deck...");
+    toast.loading("Generating and saving AI deck...", { id: "ai-deck" });
 
     try {
       await generateAiDeck(aiRequest);
-      setAiRequest({ topic: "", subject: "", count: 8 });
-      setStatus("AI generated deck saved to Firebase.");
+      setAiRequest({ topic: "", count: 8 });
+      toast.success("AI generated deck saved to Firebase.", { id: "ai-deck" });
     } catch (submitError) {
-      setStatus(submitError.message);
+      toast.error(submitError.message, { id: "ai-deck" });
     } finally {
       setSaving(false);
     }
@@ -274,15 +225,15 @@ export default function Decks() {
   async function handlePdfSubmit(event) {
     event.preventDefault();
     setSaving(true);
-    setStatus("Uploading PDF and generating deck...");
+    toast.loading("Uploading PDF and generating deck...", { id: "pdf-deck" });
 
     try {
       await generatePdfDeck(pdfRequest);
-      setPdfRequest({ title: "", subject: "", extractedText: "", file: null });
+      setPdfRequest({ title: "", extractedText: "", file: null });
       event.currentTarget.reset();
-      setStatus("PDF generated deck saved to Firebase.");
+      toast.success("PDF generated deck saved to Firebase.", { id: "pdf-deck" });
     } catch (submitError) {
-      setStatus(submitError.message);
+      toast.error(submitError.message, { id: "pdf-deck" });
     } finally {
       setSaving(false);
     }
@@ -295,7 +246,7 @@ export default function Decks() {
     }
 
     setExtractingPdf(true);
-    setStatus("Reading PDF text...");
+    toast.loading("Reading PDF text...", { id: "pdf-text" });
 
     try {
       const extractedText = await extractTextFromPdf(file);
@@ -305,24 +256,43 @@ export default function Decks() {
         title: current.title || file.name.replace(/\.pdf$/i, ""),
         extractedText,
       }));
-      setStatus("PDF text extracted. You can review it below, then generate the deck.");
+      toast.success("PDF text extracted. You can review it below, then generate the deck.", { id: "pdf-text" });
     } catch (extractError) {
       setPdfRequest((current) => ({ ...current, file, extractedText: "" }));
-      setStatus(extractError.message);
+      toast.error(extractError.message, { id: "pdf-text" });
     } finally {
       setExtractingPdf(false);
     }
   }
 
   async function handleDelete(deckId) {
-    setStatus("Deleting deck...");
+    toast.loading("Deleting deck...", { id: "delete-deck" });
 
     try {
       await deleteDeck(deckId);
-      setStatus("Deck deleted.");
+      toast.success("Deck deleted.", { id: "delete-deck" });
     } catch (deleteError) {
-      setStatus(deleteError.message);
+      toast.error(deleteError.message, { id: "delete-deck" });
     }
+  }
+
+  function requestDeleteDeck(deckId) {
+    setDeckToDelete(deckId);
+    setIsDeleteConfirmOpen(true);
+  }
+
+  function closeDeleteConfirm() {
+    setDeckToDelete(null);
+    setIsDeleteConfirmOpen(false);
+  }
+
+  async function confirmDeleteDeck() {
+    if (!deckToDelete) {
+      return;
+    }
+
+    closeDeleteConfirm();
+    await handleDelete(deckToDelete);
   }
 
   function openDeckPreview(deck) {
@@ -347,22 +317,32 @@ export default function Decks() {
   }
 
   return (
-    <ThemedPage className="space-y-6">
-   
-       <section>
-          <p className="text-sm font-bold uppercase tracking-wide text-theme-primary">Choose a study deck</p>
-          <h1 className="mt-2 text-3xl font-black text-theme-text-primary sm:text-4xl">Study</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-theme-text-secondary">
-            Select a Firebase deck first, then start answering in flashcard, quiz, true/false, typing, or exam mode.
-          </p>
-        </section>
-    
-      <section className="grid gap-4 xl:grid-cols-[24rem_1fr]">
+    <ThemedPage className="space-y-4">
+      <section className="space-y-2">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-black text-theme-text-primary sm:text-4xl">Decks</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-theme-text-secondary">
+              Create or generate decks for study. Use the tabs to build manual decks, generate with AI, or upload a PDF to extract text and generate cards instantly.
+            </p>
+          </div>
+          <div className="rounded-full border border-theme-border bg-theme-surface px-4 py-2 text-sm font-semibold text-theme-text-secondary">
+            {filteredDecks.length} deck{filteredDecks.length === 1 ? "" : "s"} available
+          </div>
+        </div>
+      </section>
 
-          <div className="flex items-center flex-col gap-4">
-              <div className="grid grid-cols-3 gap-2">
-            {tabs.map((tab) => {
+      <section className="space-y-6">
+
+        <div className="">
+        <ThemedCard className="p-4">
+
+         <div className="grid rounded-xl p-1 border border-theme-border sm:grid-cols-3">
+            {tabs.map((tab, index) => {
               const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              const isFirst = index === 0;
+              const isLast = index === tabs.length - 1;
 
               return (
                 <button
@@ -370,43 +350,73 @@ export default function Decks() {
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={classNames(
-                    "flex  items-center justify-center gap-2 rounded-xl px-2 py-2 text-xs font-black transition",
-                    activeTab === tab.id
-                      ? "bg-theme-primary text-white"
-                      : "bg-theme-surface-muted text-theme-text-secondary hover:text-theme-text-primary"
+                    "group flex cursor-pointer items-center gap-3 border px-4 py-2 text-left transition",
+
+                    // first = rounded left, last = rounded right
+                    isFirst && "rounded-l-xl",
+                    isLast && "rounded-r-xl",
+
+                    isActive
+                      ? "border-theme-primary bg-theme-primary text-white shadow-lg shadow-theme-primary/20"
+                      : "border-transparent bg-theme-surface text-theme-text-secondary hover:border-theme-primary/40 hover:text-theme-text-primary"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
-                  {tab.label}
+                  <span
+                    className={classNames(
+                      "grid shrink-0 place-items-center rounded-lg border transition",
+                      isActive
+                        ? "border-white/25 bg-white/15 text-white"
+                        : "border-theme-border bg-theme-surface-muted text-theme-primary group-hover:border-theme-primary/40"
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-black leading-tight">
+                      {tab.label}
+                    </span>
+                  </span>
+
+                  <span
+                    className={classNames(
+                      "hidden h-2.5 w-2.5 rounded-full sm:block",
+                      isActive ? "bg-white" : "bg-theme-border"
+                    )}
+                  />
                 </button>
               );
             })}
           </div>
 
-        <ThemedCard className="p-3">
-        
           {activeTab === "manual" && (
             <form onSubmit={handleManualSubmit} className="mt-4 space-y-4 p-2">
-              <ThemedCardHead as="h2" className="text-xl">Manual Deck</ThemedCardHead>
-              <ThemedInput label="Deck title" value={manualDeck.title} onChange={(event) => setManualDeck({ ...manualDeck, title: event.target.value })} />
-              <ThemedInput label="Description" textarea rows={3} value={manualDeck.description} onChange={(event) => setManualDeck({ ...manualDeck, description: event.target.value })} />
-              <ThemedInput label="Tags" placeholder="Biology, Exam, Chapter 1" value={manualDeck.tags} onChange={(event) => setManualDeck({ ...manualDeck, tags: event.target.value })} />
-              <div className="space-y-3">
-                {manualDeck.cards.map((card, index) => (
-                  <div key={index} className="rounded-lg border border-theme-border bg-theme-surface-muted p-3">
-                    <ThemedInput label={`Question ${index + 1}`} value={card.question} onChange={(event) => updateManualCard(index, "question", event.target.value)} />
-                    <ThemedInput label="Answer" className="mt-3" value={card.answer} onChange={(event) => updateManualCard(index, "answer", event.target.value)} />
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <ThemedButton type="button" variant="secondary" onClick={addManualCard} className="gap-2">
+              <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-end">
+                <ThemedInput
+                  label="Deck title"
+                  value={manualDeck.title}
+                  onChange={(event) => setManualDeck({ ...manualDeck, title: event.target.value })}
+                  className="flex-1"
+                  placeholder="e.g. Biology 101, World War II, Organic Chemistry..."
+                />
+                <ThemedButton type="button" variant="secondary" onClick={addManualCard} className="w-42 gap-2">
                   <Plus className="h-4 w-4" />
-                  Add card
+                  Manage Card
                 </ThemedButton>
+              </div>
+              <ThemedInput
+                label="Description"
+                textarea
+                rows={3}
+                value={manualDeck.description}
+                onChange={(event) => setManualDeck({ ...manualDeck, description: event.target.value })}
+                placeholder="Add an optional description for this deck."
+              />
+
+              <div className="flex flex-wrap justify-end gap-2">
                 <ThemedButton type="submit" disabled={saving} className="gap-2">
                   <CheckCircle2 className="h-4 w-4" />
-                  Save
+                  Save deck
                 </ThemedButton>
               </div>
             </form>
@@ -414,12 +424,25 @@ export default function Decks() {
 
           {activeTab === "ai" && (
             <form onSubmit={handleAiSubmit} className="mt-4 space-y-4 p-2">
-              <ThemedCardHead as="h2" className="text-xl">AI Generated</ThemedCardHead>
-              <ThemedCardParagraph>Gemini creates flashcards and saves them to Firebase.</ThemedCardParagraph>
-              <ThemedInput label="Topic" value={aiRequest.topic} onChange={(event) => setAiRequest({ ...aiRequest, topic: event.target.value })} />
-              <ThemedInput label="Subject" value={aiRequest.subject} onChange={(event) => setAiRequest({ ...aiRequest, subject: event.target.value })} />
-              <ThemedInput label="Number of flashcards" type="number" min="3" max="40" value={aiRequest.count} onChange={(event) => setAiRequest({ ...aiRequest, count: Number(event.target.value) })} />
-              <div className="rounded-lg border border-theme-border bg-theme-surface-muted p-4">
+              <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-end sm:gap-6">
+                <ThemedInput
+                  label="Topic"
+                  value={aiRequest.topic}
+                  onChange={(event) => setAiRequest({ ...aiRequest, topic: event.target.value })}
+                  className="flex-1"
+                  placeholder="e.g. Biology, World War II, Organic Chemistry..."
+                />
+                <ThemedInput
+                  label="Number of flashcards"
+                  type="number"
+                  min="3"
+                  max="40"
+                  value={aiRequest.count}
+                  onChange={(event) => setAiRequest({ ...aiRequest, count: Number(event.target.value) })}
+                  className="w-72"
+                />
+              </div>
+              <div className="space-y-2 rounded-lg border border-theme-border bg-theme-surface-muted p-4 text-sm text-theme-text-secondary">
                 {["Exam-focused content", "Important definitions", "Common test questions"].map((item) => (
                   <p key={item} className="flex items-center gap-2 text-sm font-bold text-theme-text-secondary">
                     <Sparkles className="h-4 w-4 text-theme-primary" />
@@ -427,39 +450,51 @@ export default function Decks() {
                   </p>
                 ))}
               </div>
-              <ThemedButton type="submit" disabled={saving} className="w-full gap-2">
+              <div className="flex flex-wrap gap-2 justify-end">
+                  <ThemedButton type="submit" disabled={saving} className="w-48 gap-2">
                 <Bot className="h-4 w-4" />
-                Generate and save
-              </ThemedButton>
+                {saving ? "Generating deck..." : "Generate deck"}
+                </ThemedButton>
+              </div>
             </form>
           )}
 
           {activeTab === "pdf" && (
             <form onSubmit={handlePdfSubmit} className="mt-4 space-y-4 p-2">
-              <ThemedCardHead as="h2" className="text-xl">PDF Gen</ThemedCardHead>
-              <ThemedCardParagraph>Upload a PDF, extract its text in the browser, then generate with Gemini.</ThemedCardParagraph>
-              <label className="flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-theme-border bg-theme-surface-muted p-6 text-center transition hover:border-theme-primary">
-                <FileUp className="h-9 w-9 text-theme-primary" />
-                <span className="mt-3 text-sm font-black text-theme-text-primary">
-                  {extractingPdf ? "Extracting text..." : pdfRequest.file?.name || "Choose a PDF"}
-                </span>
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(event) => handlePdfFileChange(event.target.files?.[0] || null)}
-                  className="sr-only"
+              <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-end">
+                <ThemedInput
+                  label="Deck title"
+                  value={pdfRequest.title}
+                  onChange={(event) => setPdfRequest({ ...pdfRequest, title: event.target.value })}
+                  placeholder="e.g. Biology 101, World War II, Organic Chemistry..."
+                  className="flex-1"
                 />
-              </label>
-              <ThemedInput label="Deck title" value={pdfRequest.title} onChange={(event) => setPdfRequest({ ...pdfRequest, title: event.target.value })} />
-              <ThemedInput label="Subject" value={pdfRequest.subject} onChange={(event) => setPdfRequest({ ...pdfRequest, subject: event.target.value })} />
-              <ThemedInput
-                label="Extracted PDF text"
-                textarea
-                rows={8}
-                placeholder="PDF text will appear here after upload. You can edit it before generating."
-                value={pdfRequest.extractedText}
-                onChange={(event) => setPdfRequest({ ...pdfRequest, extractedText: event.target.value })}
+
+                <div>
+                  <ThemedButton
+                    type="button"
+                    variant="secondary"
+                    onClick={() => fileInputRef.current?.click()}
+                    className=""
+                  >
+                  <FileText className="h-4 w-4 mr-2" />
+                  {extractingPdf
+                    ? "Extracting text..."
+                    : pdfRequest.file?.name || "Choose a PDF"}
+                  </ThemedButton>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                onChange={(event) =>
+                  handlePdfFileChange(event.target.files?.[0] || null)
+                }
+                className="hidden"
               />
+              </div>
+              </div>
+
               <div className="space-y-2 rounded-lg border border-theme-border bg-theme-surface-muted p-4 text-sm text-theme-text-secondary">
                 {["Browser PDF text extraction", "Gemini card generation", "Firebase deck save"].map((step) => (
                   <p key={step} className="flex items-center gap-2 font-bold">
@@ -468,34 +503,30 @@ export default function Decks() {
                   </p>
                 ))}
               </div>
-              <ThemedButton type="submit" disabled={saving || extractingPdf || !pdfRequest.extractedText.trim()} className="w-full gap-2">
+             <div className="flex flex-wrap gap-2 justify-end">
+                 <ThemedButton
+                type="submit"
+                disabled={saving || extractingPdf || !pdfRequest.extractedText.trim()}
+                className="gap-2 w-48"
+              >
                 <FileUp className="h-4 w-4" />
-                {saving ? "Generating..." : "Generate PDF deck"}
+                {saving ? "Generating PDF..." : "Generate PDF"}
               </ThemedButton>
+             </div>
             </form>
           )}
         </ThemedCard>
           </div>
 
         <section className="space-y-4">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-theme-text-muted" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search Firebase decks..."
-              className="w-full rounded-xl border border-theme-border bg-theme-surface px-11 py-3 text-sm text-theme-text-primary outline-none transition focus:border-theme-primary"
-            />
-          </div>
-
           {loading ? (
             <ThemedCard className="p-8 text-center">
               <ThemedCardHead>Loading decks...</ThemedCardHead>
             </ThemedCard>
           ) : filteredDecks.length ? (
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-4">
               {filteredDecks.map((deck) => (
-                <DeckCard key={deck.id} deck={deck} onDelete={handleDelete} onOpen={openDeckPreview} />
+                <DeckCard key={deck.id} deck={deck} onDelete={requestDeleteDeck} onOpen={openDeckPreview} />
               ))}
             </div>
           ) : (
@@ -510,7 +541,35 @@ export default function Decks() {
         </section>
       </section>
 
-      <DeckPreviewModal
+      <ManualCardModal
+        isOpen={isCardModalOpen}
+        cards={manualDeck.cards}
+        draft={cardDraft}
+        onClose={closeManualCardModal}
+        onChange={handleCardDraftChange}
+        onSave={saveManualCard}
+        onStartAdd={() => openManualCardModal()}
+        onUpdateCard={updateManualCard}
+        onDelete={requestDeleteManualCard}
+      />
+
+      <ConfirmModal
+        isOpen={isManualCardDeleteConfirmOpen}
+        title="Delete card"
+        message="Are you sure you want to remove this flashcard from the manual deck?"
+        onConfirm={confirmDeleteManualCard}
+        onCancel={closeManualCardDeleteConfirm}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteConfirmOpen}
+        title="Delete deck"
+        message="Are you sure you want to permanently delete this deck? This action cannot be undone."
+        onConfirm={confirmDeleteDeck}
+        onCancel={closeDeleteConfirm}
+      />
+
+      <GitPreview
         deck={previewDeck}
         cardIndex={previewCardIndex}
         onClose={() => setPreviewDeck(null)}

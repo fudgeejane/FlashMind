@@ -39,11 +39,11 @@ export function ThemeComponents() {
     errorText: "text-theme-error",
     primaryTextHover: "hover:text-theme-text-primary",
 
-    card: "rounded-2xl border shadow-sm transition-colors border-theme-border bg-theme-surface text-theme-text-primary",
+    card: "rounded-lg border shadow-sm transition-colors border-theme-border bg-theme-surface text-theme-text-primary",
     cardHover: "hover:-translate-y-1 hover:border-theme-primary hover:shadow-xl",
     shadow: "shadow-[0_2px_12px_rgba(15,23,42,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.35)]",
 
-    buttonBase: "inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60",
+    buttonBase: "inline-flex cursor-pointer items-center justify-center rounded-lg px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60",
     buttonPrimary: "hover:-translate-y-0.5 bg-theme-primary text-white hover:bg-theme-primary-hover",
     buttonSecondary: "border hover:-translate-y-0.5 border-theme-border bg-theme-surface text-theme-text-primary hover:border-theme-primary hover:bg-theme-surface-muted",
     buttonGhost: "text-theme-text-secondary hover:bg-theme-surface-muted hover:text-theme-text-primary",
@@ -88,7 +88,7 @@ export function ThemeComponents() {
 
     navLink: "text-sm font-semibold text-theme-text-secondary transition hover:text-theme-text-primary",
     navBg: "bg-theme-surface text-theme-text-primary hover:bg-theme-surface-muted",
-    badge: "inline-flex rounded-full border px-4 py-2 text-sm font-bold border-theme-secondary/20 bg-theme-secondary/10 text-theme-secondary",
+    badge: "inline-flex rounded-lg border px-4 py-2 text-sm font-bold border-theme-secondary/20 bg-theme-secondary/10 text-theme-secondary",
     focus: "focus:border-theme-primary focus:ring-4 focus:ring-theme-primary/15",
 
     routeProgress: "pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left animate-route-progress bg-theme-primary",
@@ -97,9 +97,9 @@ export function ThemeComponents() {
     layoutContainer: "mx-auto w-full max-w-7xl px-4 py-6 sm:px-6",
     iconButton: "grid h-10 w-10 place-items-center rounded-lg border border-theme-border transition hover:border-theme-primary",
     iconButtonGhost: "rounded-lg p-2 transition hover:bg-theme-surface-muted",
-    avatar: "grid h-8 w-8 place-items-center rounded-full bg-theme-primary/15 text-theme-primary",
-    profileButton: "flex items-center gap-2 rounded-full border border-theme-border bg-theme-surface px-2 py-2 text-sm font-semibold transition hover:border-theme-primary",
-    dropdown: "absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-theme-border bg-theme-surface shadow-xl",
+    avatar: "grid h-8 w-8 place-items-center rounded-lg bg-theme-primary/15 text-theme-primary",
+    profileButton: "flex items-center gap-2 rounded-lg border border-theme-border bg-theme-surface px-2 py-2 text-sm font-semibold transition hover:border-theme-primary",
+    dropdown: "absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-theme-border bg-theme-surface shadow-xl",
     dropdownSection: "border-t border-theme-border p-2",
     dropdownItem: "inline-flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-sm font-semibold text-theme-text-secondary transition hover:bg-theme-surface-muted hover:text-theme-text-primary",
     sidebar: "fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col border-r border-theme-border pt-4 shadow-2xl transition-all duration-300 lg:top-[65px] lg:z-30 lg:translate-x-0 lg:shadow-none bg-theme-surface/90",
@@ -122,14 +122,14 @@ export function ThemeToggle() {
       aria-pressed={isDark}
       onClick={toggleMode}
       className={classNames(
-        "group relative inline-flex h-7.5 w-14 cursor-pointer items-center rounded-full border p-1 shadow-sm transition hover:border-theme-primary",
+        "group relative inline-flex h-7.5 w-14 cursor-pointer items-center rounded-lg border p-1 shadow-sm transition hover:border-theme-primary",
         classes.surface,
         classes.border
       )}
     >
       <span
         className={classNames(
-          "grid h-5 w-5 place-items-center rounded-full text-sm font-bold shadow-sm transition",
+          "grid h-5 w-5 place-items-center rounded-lg text-sm font-bold shadow-sm transition",
           isDark ? "translate-x-6 bg-theme-primary text-slate-950" : "translate-x-0 bg-theme-secondary text-white"
         )}
       >
